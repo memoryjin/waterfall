@@ -4,8 +4,7 @@ function waterfall(){
 	//the pictures can be loaded
 	const dataInt = {
 		data: [{src:"40.jpg"},{src:"41.jpg"},{src:"42.jpg"},{src:"43.jpg"},{src:"44.jpg"},{src:"45.jpg"},{src:"46.jpg"},
-		{src:"47.jpg"},{src:"48.jpg"},{src:"40.jpg"},{src:"41.jpg"},{src:"42.jpg"},{src:"43.jpg"},{src:"44.jpg"},{src:"45.jpg"},
-		{src:"46.jpg"},{src:"47.jpg"},{src:"48.jpg"},{src:"49.jpg"},{src:"50.jpg"},{src:"51.jpg"},{src:"52.jpg"},{src:"53.jpg"},
+		{src:"47.jpg"},{src:"48.jpg"},{src:"49.jpg"},{src:"50.jpg"},{src:"51.jpg"},{src:"52.jpg"},{src:"53.jpg"},
 		{src:"54.jpg"},{src:"55.jpg"},{src:"56.jpg"},{src:"57.jpg"},{src:"58.jpg"},{src:"59.jpg"},{src:"60.jpg"},{src:"61.jpg"},
 		{src:"62.jpg"},{src:"63.jpg"},{src:"64.jpg"},{src:"65.jpg"},{src:"66.jpg"},{src:"67.jpg"},{src:"68.jpg"},{src:"69.jpg"},
 		{src:"70.jpg"},{src:"71.jpg"},{src:"72.jpg"},{src:"73.jpg"},{src:"74.jpg"},{src:"75.jpg"},{src:"76.jpg"},{src:"77.jpg"},
@@ -24,10 +23,11 @@ function waterfall(){
 	//initial layout for the 40 pictures
 	function layout(){
 		colsHeight = [];
-		boxes = document.getElementsByClassName("box");
-		main = document.getElementById("main");
+		boxes = document.querySelectorAll(".box");
+		main = document.querySelector("#main");
 		boxWidth = boxes[0].offsetWidth; //as all the picture's width are the same 
-		let totalWidth = document.documentElement.clientWidth;
+		let width = document.documentElement.clientWidth;
+		let totalWidth = (width > 500) ? width : document.body.scrollWidth;
 		let cols = Math.floor(totalWidth/boxWidth);
 		main.style.cssText = "Width: " + boxWidth * cols + "px; margin: 0 auto;";
 		length = boxes.length;
@@ -69,22 +69,19 @@ function waterfall(){
 						divPic.className = "pic";
 						let img = document.createElement("img");
 						img.alt = "picture";
-						img.src = "images/" + dataInt.data[j].src;
+						img.src = "images/" + dataInt.data[j].src;						
 						divPic.appendChild(img);
 						divBox.appendChild(divPic);
 						main.appendChild(divBox);
-						{
-							let _divBox = divBox;
-							img.addEventListener("load", function(){	
-								minH = Math.min.apply(this, colsHeight);
-								minHIndex = colsHeight.indexOf(minH);
-								_divBox.style.position = "absolute";
-								_divBox.style.top = minH + "px";
-								_divBox.style.left = minHIndex * boxWidth + "px"; 
-								colsHeight[minHIndex] += _divBox.offsetHeight;										
-							}, false);
-						}
-						j++;					
+						img.addEventListener("load", function(){								
+							minH = Math.min.apply(this, colsHeight);
+							minHIndex = colsHeight.indexOf(minH);
+							divBox.style.position = "absolute";
+							divBox.style.top = minH + "px";
+							divBox.style.left = minHIndex * boxWidth + "px"; 
+							colsHeight[minHIndex] += divBox.offsetHeight;										
+						}, false);												
+						j++;
 					}
 				}				
 			}
