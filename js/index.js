@@ -2,7 +2,7 @@ window.onload = waterfall;
 
 function waterfall(){
 	//the pictures can be loaded
-	var dataInt = {
+	const dataInt = {
 		data: [{src:"40.jpg"},{src:"41.jpg"},{src:"42.jpg"},{src:"43.jpg"},{src:"44.jpg"},{src:"45.jpg"},{src:"46.jpg"},
 		{src:"47.jpg"},{src:"48.jpg"},{src:"40.jpg"},{src:"41.jpg"},{src:"42.jpg"},{src:"43.jpg"},{src:"44.jpg"},{src:"45.jpg"},
 		{src:"46.jpg"},{src:"47.jpg"},{src:"48.jpg"},{src:"49.jpg"},{src:"50.jpg"},{src:"51.jpg"},{src:"52.jpg"},{src:"53.jpg"},
@@ -15,23 +15,28 @@ function waterfall(){
 	//main、boxes are elementNode
 	//minH is the minimun value of colsHeight and minHIndex is the index of the minimun value
 	//length refer to boxes.length and dataLength refer to dataInt.data.length 
-	var main, boxes, minH, minHIndex, boxWidth, length, dataLength;	
-	var j = 0;//as the count of the above pictures	
-	var colsHeight = [];//storage the height of columns
+	let main, boxes, minH, minHIndex, boxWidth, length;
+	let dataLength = dataInt.data.length;	
+	let j = 0;//as the count of the above pictures	
+	let colsHeight = [];//storage the height of columns
+	let allowScroll = true;
 	
 	//initial layout for the 40 pictures
 	function layout(){
-		dataLength = dataInt.data.length;
+		colsHeight = [];
 		boxes = document.getElementsByClassName("box");
 		main = document.getElementById("main");
 		boxWidth = boxes[0].offsetWidth; //as all the picture's width are the same 
-		var totalWidth = document.documentElement.clientWidth;
-		var cols = Math.floor(totalWidth/boxWidth);
+		let totalWidth = document.documentElement.clientWidth;
+		let cols = Math.floor(totalWidth/boxWidth);
 		main.style.cssText = "Width: " + boxWidth * cols + "px; margin: 0 auto;";
 		length = boxes.length;
-		for(var i = 0; i < length; i++){
+		for(let i = 0; i < length; i++){
 			if(i < cols){
 				colsHeight.push(boxes[i].offsetHeight);
+				boxes[i].style.position = "absolute";
+				boxes[i].style.left = boxWidth * i + "px";
+				boxes[i].style.top = 0;
 			}
 			else{
 				minH = Math.min.apply(this, colsHeight);
@@ -47,49 +52,46 @@ function waterfall(){
 	
 	//loading the pictures dynamically when the wheel is scrolling
 	function scroll(){
-		window.removeEventListener("scroll", scroll, false);//prevent triggering the event repeatedly
-		minH = Math.min.apply(this, colsHeight);
-		minHIndex = colsHeight.indexOf(minH);
-		var scrollSpace = document.documentElement.scrollTop || document.body.scrollTop;
-		var actualSpace = minH - scrollSpace;
-		var compSpace = document.documentElement.clientHeight;
-		//insert the new images to the columns according to the height
-		if(actualSpace < compSpace){			
-			for(var i = 0; i < 10; i++){				
-				if(j < dataLength){
-					var divBox = document.createElement("div");
-					divBox.className = "box";
-					var divPic =document.createElement("div");
-					divPic.className = "pic";
-					var img = document.createElement("img");
-					img.alt = "picture";
-					img.src = "images/" + dataInt.data[j].src;
-					divPic.appendChild(img);
-					divBox.appendChild(divPic);
-					main.appendChild(divBox);
-					/*js动态加载图片，for循环过程中图片可能没有加载完成，从而无法获得图片的height等信息，
-					通过给img添加load事件处理函数，这样只有当picture完成Load后再对这些图片进行style的正确设置。
-					此外，由于j是全局变量，当img.load事件处理函数开始执行时，for循环已结束，此时事件处理函数中
-					的j都将指向相同的全局变量。为了解决该问题，引入了经典的IIFE*/
-					(function(m){					
-						img.addEventListener("load", function(){	
-							minH = Math.min.apply(this, colsHeight);
-							minHIndex = colsHeight.indexOf(minH);
-							boxes[m + length].style.position = "absolute";
-							boxes[m + length].style.top = minH + "px";
-							boxes[m + length].style.left = minHIndex * boxWidth + "px"; 
-							colsHeight[minHIndex] += boxes[m + length].offsetHeight;										
-						}, false);
-					})(j);
-					j++;					
-				}
-				else return;//there is no more picture,use "return" to leave the function,and do not 
-							//perform the following statement "window.addEventListener("scroll", scroll, false);"
-			}				
-		}
-	window.addEventListener("scroll", scroll, false);			
+		if(allowScroll === true) {
+			allowScroll = false;
+			minH = Math.min.apply(this, colsHeight);
+			minHIndex = colsHeight.indexOf(minH);
+			let scrollSpace = document.documentElement.scrollTop || document.body.scrollTop;
+			let actualSpace = minH - scrollSpace;
+			let compSpace = document.documentElement.clientHeight;
+			//insert the new images to the columns according to the height
+			if(actualSpace < compSpace){			
+				for(let i = 0, colsLength = colsHeight.length; i < colsLength * 2; i++){				
+					if(j < dataLength){
+						let divBox = document.createElement("div");
+						divBox.className = "box";
+						let divPic =document.createElement("div");
+						divPic.className = "pic";
+						let img = document.createElement("img");
+						img.alt = "picture";
+						img.src = "images/" + dataInt.data[j].src;
+						divPic.appendChild(img);
+						divBox.appendChild(divPic);
+						main.appendChild(divBox);
+						{
+							let _divBox = divBox;
+							img.addEventListener("load", function(){	
+								minH = Math.min.apply(this, colsHeight);
+								minHIndex = colsHeight.indexOf(minH);
+								_divBox.style.position = "absolute";
+								_divBox.style.top = minH + "px";
+								_divBox.style.left = minHIndex * boxWidth + "px"; 
+								colsHeight[minHIndex] += _divBox.offsetHeight;										
+							}, false);
+						}
+						j++;					
+					}
+				}				
+			}
+			allowScroll = true;			
+		}			
 	}
-
 	layout();		
+	window.addEventListener("resize", layout, false);
 	window.addEventListener("scroll", scroll, false);
 }
