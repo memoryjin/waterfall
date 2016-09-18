@@ -17,37 +17,47 @@ function waterfall(){
 	let main, boxes, minH, minHIndex, boxWidth, length;
 	let dataLength = dataInt.data.length;	
 	let j = 0;//as the count of the above pictures	
+	let cols = 0;
 	let colsHeight = [];//storage the height of columns
 	let allowScroll = true;
+	let allowResize = true;
 	
 	//initial layout for the 40 pictures
 	function layout(){
-		colsHeight = [];
-		boxes = document.querySelectorAll(".box");
-		main = document.querySelector("#main");
-		boxWidth = boxes[0].offsetWidth; //as all the picture's width are the same 
-		let width = document.documentElement.clientWidth;
-		let totalWidth = (width > 500) ? width : document.body.scrollWidth;
-		let cols = Math.floor(totalWidth/boxWidth);
-		main.style.cssText = "Width: " + boxWidth * cols + "px; margin: 0 auto;";
-		length = boxes.length;
-		for(let i = 0; i < length; i++){
-			if(i < cols){
-				colsHeight.push(boxes[i].offsetHeight);
-				boxes[i].style.position = "absolute";
-				boxes[i].style.left = boxWidth * i + "px";
-				boxes[i].style.top = 0;
+		if(allowResize === true) {
+			boxes = document.querySelectorAll(".box");
+			main = document.querySelector("#main");
+			boxWidth = boxes[0].offsetWidth; //as all the picture's width are the same 
+			let width = document.documentElement.clientWidth;
+			let totalWidth = (width > 500) ? width : document.body.scrollWidth;
+			let _cols = Math.floor(totalWidth/boxWidth);
+			main.style.cssText = "Width: " + boxWidth * _cols + "px; margin: 0 auto;";
+			if(_cols === cols) return;
+			else {
+				allowResize = false;
+				cols = _cols;
+				colsHeight = [];
+				length = boxes.length;	
+				for(let i = 0; i < length; i++){
+					if(i < _cols){
+						colsHeight.push(boxes[i].offsetHeight);
+						boxes[i].style.position = "absolute";
+						boxes[i].style.left = boxWidth * i + "px";
+						boxes[i].style.top = 0;
+					}
+					else{
+						minH = Math.min.apply(this, colsHeight);
+						minHIndex = colsHeight.indexOf(minH);
+						boxes[i].style.position = "absolute";
+						boxes[i].style.left = minHIndex * boxWidth + "px";
+						boxes[i].style.top = minH + "px";
+						colsHeight[minHIndex] += boxes[i].offsetHeight;
+					}
+				}
+				main.style.height = Math.max.apply(this,colsHeight) + "px";							
 			}
-			else{
-				minH = Math.min.apply(this, colsHeight);
-				minHIndex = colsHeight.indexOf(minH);
-				boxes[i].style.position = "absolute";
-				boxes[i].style.left = minHIndex * boxWidth + "px";
-				boxes[i].style.top = minH + "px";
-				colsHeight[minHIndex] += boxes[i].offsetHeight;
-			}
+			allowResize = true;			
 		}
-		main.style.height = Math.max.apply(this,colsHeight) + "px";	
 	}
 	
 	//loading the pictures dynamically when the wheel is scrolling
