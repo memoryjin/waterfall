@@ -29,7 +29,7 @@ function waterfall(){
 			main = document.querySelector("#main");
 			boxWidth = boxes[0].offsetWidth; //as all the picture's width are the same 
 			let width = document.documentElement.clientWidth;
-			let totalWidth = (width > 500) ? width : document.body.scrollWidth;
+			let totalWidth = (width > 500) ? width : 2 * boxWidth;
 			let _cols = Math.floor(totalWidth/boxWidth);
 			main.style.cssText = "Width: " + boxWidth * _cols + "px; margin: 0 auto;";
 			if(_cols === cols) return;
