@@ -1,0 +1,27 @@
+		#main {
+			position: relative;
+		}
+		.main {
+			display: -webkit-flex;
+			flex-direction: row;
+			justify-content: center;
+			margin: 10px auto; 
+			position: relative;
+		}
+		.flex {
+			width: 242px;
+		}
+		.box {
+			padding: 10px 10px;
+			float: left;
+		}
+		.pic {
+			border: 1px solid #ccc;
+			border-radius: 10px;
+			box-shadow: 0 0 6px #ccc;
+			padding: 10px;
+		}
+		.pic img {
+			width: 200px;
+			height: auto;
+		}
